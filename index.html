@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="format-detection" content="telephone=no">
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi">
+        <link rel="stylesheet" type="text/css" href="css/index.css">
+		
+	<script src="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.js"></script>
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.css" />
+	<script src="js/KML.js"></script>
+	
+
+	<style>
+		#map {widh: 100%; height: 580px; 	position:relative;} 
+	</style>		
+		
+        <title>Mapa para cletas</title>
+    </head>
+    <body>
+        <div class="app">
+            <div id="deviceready" class="blink">
+
+            </div>
+        </div>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript">
+            app.initialize();
+        </script>
+		
+<div id="map"></div>
+
+<script>
+	// inicializamos el mapa, le damos lat long y zoom
+    var map = new L.Map('map', {
+      //center: new L.LatLng(-33.438622,-70.572374),
+      zoom: 15
+    });
+    // creamos la tile layer, el mapa que es la base
+    var tileUrl = 'http://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png',
+    layer = new L.TileLayer(tileUrl, {maxZoom: 19});
+	//se instancian las capas KML que se utilizarar
+	var ciclovias = new L.KML("http://dl.dropboxusercontent.com/u/75225365/dal/CiclovasSantiago2012-2013.kml", {async: true});
+	var talleresytiendas = new L.KML("http://dl.dropboxusercontent.com/u/75225365/dal/TalleresyoTiendasDeBicicletasEnSantiago.kml", {async: true});
+	var estacionamientos = new L.KML("http://dl.dropboxusercontent.com/u/75225365/dal/CicleterosSantiagoEstacionamientos.kml", {async: true});
+	//añadimos capas KML y el mapa base 'layer'
+	map.addLayer(ciclovias);
+	map.addLayer(talleresytiendas);
+	map.addLayer(estacionamientos);
+
+    map.addLayer(layer);
+	//se añade un controlador de capas
+	map.addControl(new L.Control.Layers({}, {'Ciclovias':ciclovias,'Talleres y Tiendas':talleresytiendas,'Estacionamientos':estacionamientos}));
+
+		function onLocationFound(e) {
+			var radius = e.accuracy / 2;
+			
+			//L.marker(e.latlng).addTo(map)
+			//	.bindPopup("You are within " + radius + " meters from this point").openPopup();
+			
+			L.circle(e.latlng, 0.5).addTo(map);
+		}
+		function onLocationError(e) {
+			alert(e.message);
+		}
+		map.on('locationfound', onLocationFound);
+		//map.on('locationerror', onLocationError);
+		map.locate({setView: true, maxZoom: 16});
+		function geolocal(){
+			var options = {
+			  enableHighAccuracy: false,
+			  timeout: 5000,
+			  maximumAge: 0
+				};
+
+			function success(pos) {
+				var crd = pos.coords;
+				map.locate({setView: true, maxZoom: 16});
+				//presicion: crd.accuracy
+				};
+			function error(err) {
+			  console.warn('ERROR(' + err.code + '): ' + err.message);
+				};
+			navigator.geolocation.getCurrentPosition(success, error, options);
+			}
+		geolocal();
+	
+</script>
+
+		
+		
+		
+    </body>
+</html>
